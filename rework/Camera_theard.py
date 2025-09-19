@@ -6,8 +6,8 @@ from picamera2 import Picamera2
 import cv2
 
 # Camera settings 
-cap_resolution = (1280, 960)
-img_resolution = (960, 960)
+cap_resolution = (2304, 1296)
+img_resolution = (1296, 1296)
 raw_frame_hsv = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 raw_frame_bgr = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 
@@ -25,11 +25,14 @@ config = cap.create_preview_configuration(
 cap.configure(config)
 
 cap.set_controls({
+    "AfMode": 0,            # 0 = Manual
+    "LensPosition":21.0 
     # "ExposureTime": 25000,  
     # "AeEnable": False,    
     # "AwbEnable": False, 
     
 })
+time.sleep(2)
 # cap.set_controls({"Transform": {"hflip": True, "vflip": False}})
 
 
@@ -52,8 +55,9 @@ while True:
 
     cap_read()
     cv2.rectangle(raw_frame_bgr, (10,10), (30, 200), (100,100,0), -1)
+    cv2.circle(raw_frame_bgr, (1152, 648), 15, (0,0,0), 6)
 
-    cv2.imshow("Frame", raw_frame_bgr)
+    cv2.imshow("Frame", cv2.resize(raw_frame_bgr, (1536,864)))
 
     
         
@@ -63,4 +67,5 @@ while True:
 cv2.imwrite("test_brg.jpg", raw_frame_bgr)
 cap.stop()
 cap.close()
+cv2.destroyAllWindows()
 print("F")
