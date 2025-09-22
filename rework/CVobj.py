@@ -5,6 +5,7 @@ import math
 import threading
 import time
 import json
+from theard_setup import therds_stop
 
 
 with open('cent.json', 'r', encoding='utf-8') as file:
@@ -15,7 +16,7 @@ with open('cent.json', 'r', encoding='utf-8') as file:
 def find_contour(hsv_img, bound, join = 1, min_area_join = 5):
         bool_img = cv2.inRange(hsv_img,tuple(bound[0]),tuple( bound[1]))
         '''
-        for i in range(3,len(bound)):
+        for i in range(len(bound)):
             res += res + cv2.inRange(simg,bound[i][0], bound[i][1])
         res[res>255]=255  '''
 
@@ -34,7 +35,7 @@ def find_contour(hsv_img, bound, join = 1, min_area_join = 5):
         return len(ranked_contours), res_contour, bool_img
 
 
-def cent_contour(self, cont):
+def cent_contour(cont):
         moment = cv2.moments(cont)
         area = moment['m00']
         if(area != 0):
@@ -45,38 +46,8 @@ def cent_contour(self, cont):
             return x, y
         else:
             return 0, 0
-            
 
-
-class CVobj:
-    def __init__(self, name:str, img_resolution, global_bound:tuple,/, local_bound:tuple = None ,*, color:tuple = ( 0, 200, 200), div = 1, use_sect:bool = True ):
-        
-        self.name = name
-        self.draw_color = color
-        self.img = None
-        self.div = div
-        self.ret = False
-        self.resolution = img_resolution
-        
-        self.glob_bound = global_bound
-        self.glob_contour = None         
-        
-        self.sect_ = None
-        self.sect_point = point(0,0)
-        
-        self.loc_bound = local_bound
-        if local_bound == None:
-            self.loc_bound = global_bound
-
-        self.loc_contour = None
-        self.loc_point = point(0,0)
-        
-        self.main_vec = vec()
-
-        self.prev_t = time.time()
-        self.fps = 0
-        
-    def calc_sect(self, contour):
+def calc_sect(self, img, contour):
 
         if cv2.contourArea(contour)<4:
             x,y = cent_contour(contour)
@@ -88,22 +59,67 @@ class CVobj:
         w *= self.div
         h *= self.div
         
-        return max(x - 0.5 * w, 0), max(y - 0.5 * h, 0), min(x + 1.5 * w, self.resolution[0] - 1), min(y + 1.5 * h, self.resolution[1] - 1)
+        x1, y1, x2, y2 = map(int, max(x - 0.5 * w, 0), max(y - 0.5 * h, 0), min(x + 1.5 * w, self.resolution[0] - 1), min(y + 1.5 * h, self.resolution[1] - 1))
+        return img[y1:y2,x1:x2].copy(), point(x1, y1)
 
 
-yellow = CVobj( "Yellow", (960, 960), ((15,153,118),(62,255,255)))
-img_bgr = cv2.imread("test_brg.jpg")
-img = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV) 
-_, count, _ = find_contour(img, yellow.glob_bound)
-
-cv2.drawContours(img_bgr,[count], -1 , (200,200,0), 2)
-a,b,c,d = map(int, yellow.calc_sect(count))
-while True:
-
-    cv2.imshow("Frame", img_bgr[b:d, a:c])
-
-    
+class CVobj:
+    def __init__(self, name:str, img_resolution, global_bound:tuple,/, local_bound:tuple = None ,*, color:tuple = ( 0, 200, 200), div = 1, use_sect:bool = True ):
         
-    if cv2.waitKey(5) == 27:
-        break
+        self.name = name
+        self.draw_color = color
+        self.ret = False
+		self.img = None
+         
+        self.div = div       
+        self.resolution = img_resolution
+        
+        self.glob_bound = global_bound
+        self.glob_contour = None         
+        
+        self.sect = None
+        self.sect_point = point(0,0)
+        
+        self.loc_bound = local_bound
+        if local_bound == None:
+            self.loc_bound = global_bound
+
+        self.loc_contour = None
+        self.main_point = point(0,0)
+        
+        self.main_vec = vec(begi = point(img_resolution[0]/2, img_resolution[1]/2))
+
+        self.prev_t = time.time()
+        self.fps = 0
+
+	def main_calc(self, img, offset = True):
+		n, self.loc_contour, _ = self.find_contour(img, self.local_bound)
+		if n == 0:
+			_, self.loc_contour, _ = self.find_contour(img, self.glob_bound)
+			offeset = False
+
+		self.main_point = point(cent_contour(self.loc_contour))
+		self.main_point += self.sect_point
+		self.main_vec.end = point(self.main_point)
+
+	def theard(self):
+		print(self.name, "start") 
+		time.sleep(0.5)
+		while not(therds_stop.is_set()):
+			with lock:
+				theard_img = self.img
+			n, self.glob_contour, _ = find_contour(theard_img, self.glob_bound)
+			
+			if n == 0:
+				self.ret = False
+				continue
+				
+			self.sect, self.sect_point = self.calc_sect(theard_img, self.glob_contour)
+			self.main_calc(self.sect)
+		print(trg_obj.name, "end")
+				
+
+
+
+
 
