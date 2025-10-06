@@ -1,13 +1,15 @@
 import time
 import numpy as np
 import json
-
-from picamera2 import Picamera2
 import cv2
+import math
+from picamera2 import Picamera2
+from CVobj import CVobj, find_contour, cent_contour
+
 
 # Camera settings 
-cap_resolution = (1280, 960)
-img_resolution = (960, 960)
+cap_resolution = (2304, 1296)
+img_resolution = (1296, 1296)
 raw_frame_hsv = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 raw_frame_bgr = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 
@@ -25,8 +27,8 @@ config = cap.create_preview_configuration(
 cap.configure(config)
 
 cap.set_controls({
-#     "AfMode": 0,            # 0 = Manual
-#     "LensPosition":21.0 
+   "AfMode": 0,            # 0 = Manual
+    "LensPosition":21.0 
     # "ExposureTime": 25000,  
     # "AeEnable": False,    
     # "AwbEnable": False, 
@@ -50,14 +52,22 @@ def cap_read():
     raw_frame_hsv = cv2.cvtColor(raw_frame_bgr, cv2.COLOR_BGR2HSV) 
 
 
-
+yellow = CVobj("Y", (1280, 960), ((0,100,100),( 20, 255, 255 )))
 while True:
 
     cap_read()
-    cv2.rectangle(raw_frame_bgr, (10,10), (30, 200), (100,100,0), -1)
-    cv2.circle(raw_frame_bgr, (1152, 648), 15, (0,0,0), 6)
+    cv2.circle(raw_frame_bgr, (1152, 648), 30, (0,0,0), 6)
+    # _, cnt,_ = find_contour(raw_frame_hsv, ((100,100,80),( 270, 255, 255 )))
+    # cv2.drawContours(raw_frame_bgr,cnt,-1, (255,0,0),5)
+    # cx, cy = cent_contour(cnt)
+    # print(math.sqrt((cx-1152)**2 + (cy-648)**2))
+    yellow.main_calc(raw_frame_hsv)
+    cv2.drawContours(raw_frame_bgr, yellow.loc_contour ,-1, (255,0,0),5)
 
-    cv2.imshow("Frame", raw_frame_bgr)
+    
+    
+
+    cv2.imshow("Frame", cv2.resize(raw_frame_bgr,((1080, 607))))
 
     
         
