@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from geometry import vec, point, sign, tup
+import geometry as *
 import math
 import threading
 import time
@@ -115,7 +115,7 @@ class CVobj:
         n, self.loc_contour, _ = find_contour(self.sect, self.loc_bound)
         if n == 0:
             n, self.loc_contour, _ = find_contour(self.sect, self.glob_bound)
-            offeset = False
+            offset = False
             if n == 0:
                 self.ret = False
                 return 
