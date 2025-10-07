@@ -5,6 +5,7 @@ import cv2
 import math
 from picamera2 import Picamera2
 from CVobj import CVobj, find_contour, cent_contour
+from geometry import vec, point, sign, tup
 
 
 # Camera settings 
@@ -52,7 +53,9 @@ def cap_read():
     raw_frame_hsv = cv2.cvtColor(raw_frame_bgr, cv2.COLOR_BGR2HSV) 
 
 
-yellow = CVobj("Y", (1280, 960), ((0,100,100),( 20, 255, 255 )))
+yellow = CVobj("Y", (2304, 1296), ((10,100,100),( 30, 255, 255 )))
+
+blue = CVobj("B", (2304, 1296), ((100,100,80),( 270, 255, 255 )))
 while True:
 
     cap_read()
@@ -62,12 +65,19 @@ while True:
     # cx, cy = cent_contour(cnt)
     # print(math.sqrt((cx-1152)**2 + (cy-648)**2))
     yellow.main_calc(raw_frame_hsv)
-    cv2.drawContours(raw_frame_bgr, yellow.loc_contour ,-1, (255,0,0),5)
+    blue.main_calc(raw_frame_hsv)
 
-    
+    # cv2.drawContours(raw_frame_bgr, yellow.loc_contour ,-1, (255,0,0),5)
+    # print(yellow.main_vec.leng, yellow.main_vec.end)
+
+    x, y = tup((yellow.main_vec.end))
+    cv2.circle(raw_frame_bgr, (x , y), radius=10, color=(0, 0, 250), thickness=-1)
+    x, y = tup((blue.main_vec.end))
+    cv2.circle(raw_frame_bgr, (x , y), radius=10, color=(250, 0, 250), thickness=-1)
     
 
     cv2.imshow("Frame", cv2.resize(raw_frame_bgr,((1080, 607))))
+    cv2.imshow("Bool", cv2.cvtColor(yellow.buf, cv2.COLOR_HSV2BGR))
 
     
         

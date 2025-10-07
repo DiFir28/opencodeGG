@@ -38,6 +38,7 @@ class point:
         return m[ite]
      
 def tup(a: point)->tuple:
+    # print(a.__class__.__name__)
     return (a.x, a.y)
      
     
@@ -223,7 +224,7 @@ if __name__ == "__main__":
     a = vec(begi = point(0,90), ang = 240/180*math.pi, leng = 50)
     b = vec(begi = point(0,100), ang = 220/180*math.pi, leng = 70)
     
-    print(f"{a.end} {b.end}")
+    print(tup(a.end))
     
     
 

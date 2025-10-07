@@ -5,7 +5,7 @@ import math
 import threading
 import time
 import json
-# from theard_setup import therds_stop
+from theard_setup import therds_stop
 
 
 with open('cent.json', 'r', encoding='utf-8') as file:
@@ -77,6 +77,7 @@ class CVobj:
         self.main_vec = vec(begi = point(img_resolution[0]/2, img_resolution[1]/2))
 
         self.prev_t = time.time()
+        self.buf = 0
         self.fps = 0
 
     def calc_sect(self, img, contour):
@@ -85,7 +86,9 @@ class CVobj:
 
             if cv2.contourArea(contour)<4:
                 x,y = cent_contour(contour)
-                return max(x - 5, 0), max(y - 5, 0), min(x + 5, self.resolution[0] - 1), min(y + 5, self.resolution[1] - 1)
+                w, h = 1,1
+                x1, y1, x2, y2 = map(int, ( max(x - 0.5 * w, 0), max(y - 0.5 * h, 0), min(x + 1.5 * w, self.resolution[0] - 1), min(y + 1.5 * h, self.resolution[1] - 1)))
+                return img[y1:y2,x1:x2].copy(), point(x1, y1), (x1, y1, x2, y2)
 
             x, y, w, h = cv2.boundingRect(contour)
             x *= self.div
@@ -102,9 +105,16 @@ class CVobj:
             
     
     def main_calc(self, img, offset = True):
-        n, self.loc_contour, _ = find_contour(img, self.loc_bound)
+        
+        n, self.glob_contour, _ = find_contour(img, self.glob_bound, join = 0)
         if n == 0:
-            n, self.loc_contour, _ = find_contour(img, self.glob_bound)
+            self.ret = False
+            return 0
+        self.sect, self.sect_point, _ = self.calc_sect(img, self.glob_contour)
+        self.buf = self.sect
+        n, self.loc_contour, _ = find_contour(self.sect, self.loc_bound)
+        if n == 0:
+            n, self.loc_contour, _ = find_contour(self.sect, self.glob_bound)
             offeset = False
             if n == 0:
                 self.ret = False
@@ -113,10 +123,10 @@ class CVobj:
         x, y = map(int, cent_contour(self.loc_contour))
         self.main_point = point(x, y)
         self.main_point += self.sect_point
-        self.main_vec.end = vec(self.main_point)
-        print(self.main_vec.leng, str(self.main_vec.beg))
+        self.main_vec.end = self.main_point
         
-'''
+        
+
 
     def theard(self):
         print(self.name, "start") 
@@ -136,7 +146,7 @@ class CVobj:
                 
 
 
-'''
+
 
 if __name__ == "__main__":
     a = cv2.imread("test_brg.jpg")
