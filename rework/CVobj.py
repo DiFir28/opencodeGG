@@ -1,17 +1,12 @@
 import cv2
 import numpy as np
-import geometry as *
+from geometry import *
 import math
 import threading
 import time
 import json
-from theard_setup import therds_stop
-
-
-with open('cent.json', 'r', encoding='utf-8') as file:
-     cent = json.load(file)
-     img_cent = cent["cent"]
-
+from shared import therds_stop
+from Camera_theard import raw_frame_hsv
 
 def find_contour(hsv_img, bound, join = 1, min_area_join = 5):
         bool_img = cv2.inRange(hsv_img,tuple(bound[0]),tuple( bound[1]))
@@ -129,19 +124,12 @@ class CVobj:
 
 
     def theard(self):
+        global raw_frame_hsv
         print(self.name, "start") 
         time.sleep(0.5)
+
         while not(therds_stop.is_set()):
-            with lock:
-                theard_img = self.img
-            n, self.glob_contour, _ = find_contour(theard_img, self.glob_bound)
-            
-            if n == 0:
-                self.ret = False
-                continue
-                
-            self.sect, self.sect_point = self.calc_sect(theard_img, self.glob_contour)
-            self.main_calc(self.sect)
+            self.main_calc(raw_frame_hsv)
         print(trg_obj.name, "end")
                 
 
