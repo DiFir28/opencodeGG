@@ -44,9 +44,9 @@ def tup(a: point)->tuple:
     
 class vec():
     
-    def __init__(self, begi = point(0,0), endi = point(0,0), ang = None, leng = None):
-        self.beg = begi.copy()
-        self.end = endi.copy()
+    def __init__(self, beg = point(0,0), end = point(0,0), ang = None, leng = None):
+        self.beg = beg.copy()
+        self.end = end.copy()
         self.leng_, self.ang_ = leng , ang
         if ang == None:
             self.calcang()
@@ -100,7 +100,7 @@ class vec():
     @property
     def dy(self, val = None):
         return self.dy_      
-    @dx.setter    
+    @dy.setter    
     def dy(self, val):        
         self.end.y = self.beg.y + val
         self.calcang()
@@ -205,7 +205,7 @@ class vec():
         return f"{self.dx_} {self.dy_}"
 
     def copy(self):
-        return vec(begi = self.beg, endi = self.end)
+        return vec(beg = self.beg, end = self.end)
     
     
 def between(a, b):
@@ -218,13 +218,72 @@ def between(a, b):
    ###def __init__(self, *bx = 0, *by = 0, *ex = 0, *ey = 0):
 ###    self.beg.set(bx, by)
 ###        self.end.set(ex, ey)
+ro_types_support = ['point', 'vec']
+
+def ro(a, b, constrain = False):
+    types = []
+    types.append(type(a).__name__)
+    types.append(type(b).__name__)
+    if not set(types) <= set(ro_types_support):
+        print("Not support types")
+        return
     
+    if set(types) <= set(['point']):
+        ro_vec = vec(beg = a,  end = b)
+        return ro_vec.leng
+
+    if not constrain:
+        if set(types) <= set(['vec']):
+            if (a.dx * b.dy - a.dy * b.dx) < 0.01:
+                return ro(a, b.end)
+            return 0
+        
+        if set(types) <= set(['point', 'vec']):
+            if types[0] != 'vec':
+                a, b = b, a
+            return abs( ( a.dy * (b.x - a.beg.x) + a.dx * (b.y - a.beg.y) )  / a.leng)
+        
+    # ~~~ if constrain ~~~
+
+    if set(types) <= set(['vec']):
+        # TODO ro between 2 vectors
+        if (a.dx * b.dy - a.dy * b.dx) < 0.01:
+            return ro(a, b.end)
+        return 0
+    
+    if set(types) <= set(['point', 'vec']):
+        if types[0] != 'vec': #* make a - vec, b - point
+            a, b = b, a
+        vec_beg = vec(beg = a.beg, end = b)
+        vec_end = vec(beg = a.end, end = b)
+        if sign(vec_beg * a) != sign(vec_end * a):
+            return ro(a,b)
+        return min(ro(b, a.beg), ro(b, a.end))
+
+
+
+        
+    
+
+        
+
+
       
 if __name__ == "__main__":
-    a = vec(begi = point(0,90), ang = 240/180*math.pi, leng = 50)
-    b = vec(begi = point(0,100), ang = 220/180*math.pi, leng = 70)
+    # a = vec(beg = point(0,90), ang = 240/180*math.pi, leng = 50)
+    # b = vec(beg = point(0,100), ang = 220/180*math.pi, leng = 70)
     
-    print(tup(a.end))
+    # print(type(a.end).__name__)
+    a = point(3, 1)
+    b = vec()
+    b.end = point(12.5,-1)
+    b.beg = point(2.5, -1)
+    b.calcang()
+    b.calcdx()
+
+
+
+    print(ro(b, a, True), b.dy_, b.dy, b.leng)
     
     
 

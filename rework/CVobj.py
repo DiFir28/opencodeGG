@@ -69,7 +69,7 @@ class CVobj:
         self.loc_contour = None
         self.main_point = point(0,0)
         
-        self.main_vec = vec(begi = point(img_resolution[0]/2, img_resolution[1]/2))
+        self.main_vec = vec(beg = point(img_resolution[0]/2, img_resolution[1]/2))
 
         self.prev_t = time.time()
         self.buf = 0
@@ -123,14 +123,14 @@ class CVobj:
         
 
 
-    def theard(self):
-        global raw_frame_hsv
-        print(self.name, "start") 
-        time.sleep(0.5)
+    # def theard(self):
+    #     global raw_frame_hsv
+    #     print(self.name, "start") 
+    #     time.sleep(0.5)
 
-        while not(therds_stop.is_set()):
-            self.main_calc(raw_frame_hsv)
-        print(trg_obj.name, "end")
+    #     while not(therds_stop.is_set()):
+    #         self.main_calc(raw_frame_hsv)
+    #     print(trg_obj.name, "end")
                 
 
 
