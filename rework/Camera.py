@@ -64,7 +64,7 @@ def theard_reading_cap():
     cap.close()
     
 
-# theard = threading.Thread(target = theard_reading_cap, daemon = False)
+theard = threading.Thread(target = theard_reading_cap, daemon = False)
 
 if __name__ == "__main__":
     cap.start()

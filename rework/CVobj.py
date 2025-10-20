@@ -5,8 +5,7 @@ import math
 import threading
 import time
 import json
-from shared import therds_stop
-from Camera_theard import raw_frame_hsv
+from Shared import therds_stop
 
 def find_contour(hsv_img, bound, join = 1, min_area_join = 5):
         bool_img = cv2.inRange(hsv_img,tuple(bound[0]),tuple( bound[1]))
@@ -102,11 +101,12 @@ class CVobj:
     def main_calc(self, img, offset = True):
         
         n, self.glob_contour, _ = find_contour(img, self.glob_bound, join = 0)
+        self.buf = _
         if n == 0:
             self.ret = False
             return 0
         self.sect, self.sect_point, _ = self.calc_sect(img, self.glob_contour)
-        self.buf = self.sect
+        
         n, self.loc_contour, _ = find_contour(self.sect, self.loc_bound)
         if n == 0:
             n, self.loc_contour, _ = find_contour(self.sect, self.glob_bound)
@@ -119,6 +119,7 @@ class CVobj:
         self.main_point = point(x, y)
         self.main_point += self.sect_point
         self.main_vec.end = self.main_point
+        self.main_vec.calcang()
         
         
 
