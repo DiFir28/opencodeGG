@@ -64,19 +64,21 @@ def theard_reading_cap():
     cap.close()
     
 
-theard = threading.Thread(target = theard_reading_cap, daemon = False)
+# theard = threading.Thread(target = theard_reading_cap, daemon = False)
 
 if __name__ == "__main__":
+    cap.start()
     while True:
 
         cap_read()
         cv2.circle(raw_frame_bgr, (img_resolution[0]//2, img_resolution[1]//2), 30, (0,0,0), 6) 
-        cv2.imshow("Frame", raw_frame_bgr)        
+        cv2.imshow("Frame", cv2.resize(raw_frame_bgr, (600,600)))        
             
         if cv2.waitKey(5) == 27:
             break
 
     cv2.imwrite("test_brg.jpg", raw_frame_bgr)
-
+    cap.stop()
+    cap.close()
     cv2.destroyAllWindows()
     print("F")
