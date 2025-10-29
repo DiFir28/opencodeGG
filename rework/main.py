@@ -23,8 +23,9 @@ while True:
     frame = hsv_frame_queue.get()
     cv2.drawContours(frame, blue.glob_contour,5, (255,255,0))
     cv2.imshow("Cap",cv2.cvtColor( cv2.resize(frame, (400,400)), cv2.COLOR_HSV2BGR))
+    cv2.imshow("Blueb",cv2.resize(blue.buf,(400,400)))
     try:
-        cv2.imshow("Blue",cv2.resize(blue.sect,(400,400)))
+        cv2.imshow("Blue",cv2.cvtColor(blue.sect,cv2.COLOR_HSV2BGR))
     except:
         print("0 blue")
     blue.main_calc(frame)

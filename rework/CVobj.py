@@ -45,12 +45,13 @@ def cent_contour(cont):
 
 
 class CVobj:
-    def __init__(self, name:str, img_resolution, global_bound:tuple,/, local_bound:tuple = None ,*, color:tuple = ( 0, 200, 200), div = 1, use_sect:bool = True ):
+    def __init__(self, name:str, img_resolution, global_bound:tuple,/, local_bound:tuple = None ,*,joint=0, color:tuple = ( 0, 200, 200), div = 1, use_sect:bool = True ):
         
         self.name = name
         self.draw_color = color
         self.ret = False
         self.img = None
+        self.joint = joint
          
         self.div = div       
         self.resolution = img_resolution
@@ -100,7 +101,7 @@ class CVobj:
     
     def main_calc(self, img, offset = True):
         
-        n, self.glob_contour, _ = find_contour(img, self.glob_bound, join = 0)
+        n, self.glob_contour, _ = find_contour(img, self.glob_bound, join = self.joint)
         self.buf = _
         if n == 0:
             self.ret = False

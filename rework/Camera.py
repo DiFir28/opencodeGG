@@ -31,7 +31,7 @@ cap.configure(config)
 
 cap.set_controls({
    "AfMode": 0,            # 0 = Manual
-    "LensPosition":21.0 
+    "LensPosition":100
     # "ExposureTime": 25000,  
     # "AeEnable": False,    
     # "AwbEnable": False, 
