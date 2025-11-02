@@ -29,14 +29,15 @@ config = cap.create_preview_configuration(
 )
 cap.configure(config)
 
-cap.set_controls({
-   "AfMode": 0,            # 0 = Manual
-    "LensPosition":100
+# cap.set_controls({wher
+    #"AfMode": 0,            # 0 = Manual?
+    #"LensPosition":40
+    # "Contrast" : 1.1,
     # "ExposureTime": 25000,  
-    # "AeEnable": False,    
+    # "AeEnable": False   
     # "AwbEnable": False, 
     
-})
+# })
 time.sleep(2)
 
 
@@ -50,6 +51,7 @@ def cap_read():
     global cap, raw_frame_bgr, raw_frame_hsv
     raw_frame_bgr = cv2.cvtColor(cap.capture_array(), cv2.COLOR_RGB2BGR) 
     raw_frame_bgr = raw_frame_bgr[(cap_resolution[1] - img_resolution[1])//2 : (cap_resolution[1] - (cap_resolution[1] - img_resolution[1])//2),(cap_resolution[0] - img_resolution[0])//2 : (cap_resolution[0] - (cap_resolution[0] - img_resolution[0])//2)]
+    cv2.circle(raw_frame_bgr, (img_resolution[0]//2, img_resolution[1]//2), 1080, (0,0,0), 530)
     raw_frame_hsv = cv2.cvtColor(raw_frame_bgr, cv2.COLOR_BGR2HSV) 
 
 

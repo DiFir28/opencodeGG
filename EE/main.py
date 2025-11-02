@@ -2,8 +2,8 @@ import time
 import threading
 import json
 import cv2
-import camera
-import SharedArray as sa
+# import camera
+# import SharedArray as sa
 from shared import therds_stop, process_stop, cap_resolution
 from CVobj import CVobj, fieldimg, CVobj_threads, out_check
 from geometry import vec, point, sign, tup, between
@@ -18,7 +18,7 @@ with open('cent.json', 'r', encoding='utf-8') as file:
      cent = json.load(file)
      img_cent = cent["cent"]
 
-camera.process.start()
+# camera.process.start()
 time.sleep(1)
 
 ball = CVobj(global_bound =  borders["orange"]["glob"], local_bound =  borders["orange"]["loc"], name = "Ball" )
@@ -76,7 +76,7 @@ if  __name__ == "__main__":
     try:
         
         while True:
-            fr = camera.current_frame.copy()
+            # fr = camera.current_frame.copy()
             try:
                 gyro = float(theard_serial.data)
             except:
@@ -217,7 +217,7 @@ if  __name__ == "__main__":
         print("Ending...")
         process_stop.set()
         therds_stop.set()
-        camera.process.join()
+        # camera.process.join()
         
         time.sleep(0.1)
         cv2.destroyAllWindows()

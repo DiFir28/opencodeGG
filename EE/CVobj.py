@@ -3,14 +3,14 @@ import numpy as np
 from geometry import vec, point, sign, tup
 from shared import therds_stop, process_stop, img_resolution
 import math
-import SharedArray as sa
+# import SharedArray as sa
 import threading
 import time
 import json
 from camera import current_frame, process
-import matplotlib
-matplotlib.use('Qt5Agg')
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Qt5Agg')
+# import matplotlib.pyplot as plt
 
 
 #receive = ser.readline().decode('utf-8')

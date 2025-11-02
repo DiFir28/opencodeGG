@@ -5,9 +5,13 @@ import math
 import threading
 import time
 import json
-from Shared import therds_stop
+from Shared import therds_stop, hsv_frame_queue
+
+with open('config.json', 'r', encoding='utf-8') as file:
+     json = json.load(file)
 
 def find_contour(hsv_img, bound, join = 1, min_area_join = 5):
+        
         bool_img = cv2.inRange(hsv_img,tuple(bound[0]),tuple( bound[1]))
         '''
         for i in range(len(bound)):
@@ -123,18 +127,26 @@ class CVobj:
         self.main_vec.calcang()
         
         
+img_resolution = json["resolution"]["img"]
 
+blue = CVobj("blue", img_resolution,  json["borders"]["Blue_goal"]["global"][0])  
+yellow = CVobj("blue", img_resolution,  json["borders"]["Yellow_goal"]["global"][0])  
+orange = CVobj("blue", img_resolution,  json["borders"]["Orange_ball"]["global"][0])  
 
-    # def theard(self):
-    #     global raw_frame_hsv
-    #     print(self.name, "start") 
-    #     time.sleep(0.5)
+def CVread():
+    global blue, yellow, orange
+    while not(therds_stop.is_set()):
+        if hsv_frame_queue.empty():
+            continue
+        frame = hsv_frame_queue.get()
+        with threading.Lock():
+            blue.main_calc(frame)
+            yellow.main_calc(frame)
+            orange.main_calc(frame)
 
-    #     while not(therds_stop.is_set()):
-    #         self.main_calc(raw_frame_hsv)
-    #     print(trg_obj.name, "end")
                 
 
+theard = threading.Thread(target = CVread, daemon = True)
 
 
 

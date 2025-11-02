@@ -5,7 +5,7 @@ import threading
 
 
 ser = serial.Serial(
-    port='/dev/serial0',  # Используем UART пины GPIO
+    port='/dev/ttyAMA0',  # Используем UART пины GPIO
     baudrate=115200,     # Высокая скорость для минимизации задержек
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -55,6 +55,7 @@ if  __name__ == "__main__":
     read_thread = threading.Thread(target=read_from_arduino)
     read_thread.daemon = True
     read_thread.start()
+    ser.flush()
 
     try:
         while True:
@@ -68,7 +69,8 @@ if  __name__ == "__main__":
             print(data,end="<-data\n")
     
     # Отправляем данные
-            #ser.write((f',{0},{0},{0},{0},{10},\n').encode('utf-8'))
+            # ser.write((f',{0},{0},{0},{0},{10},\n').encode('utf-8'))
+            ser.write("1234\n".encode('utf-8'))
     
     # Очищаем буфер от возможного эха
         #if ser.in_waiting > 0:
