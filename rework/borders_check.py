@@ -47,9 +47,9 @@ while True:
 
     cv2.imshow('result', cv2.resize(thresh, (440,440))) 
     cv2.imshow('raw', cv2.cvtColor(cv2.resize(hsv, (440,440)), cv2.COLOR_HSV2BGR))
-    cv2.imshow('ball', cv2.cvtColor(hsv[860:900,952:992], cv2.COLOR_HSV2BGR))
-    ball_frame=hsv[860:900,952:992]
-    print("Mean H:", np.sum(hsv[860:900, 952:992, 0]))
+    cv2.imshow('ball', cv2.cvtColor(hsv[820:860,952:992], cv2.COLOR_HSV2BGR))
+    ball_frame=hsv[820:860,952:992]
+    print("Mean H:", np.sum(hsv[820:860, 952:992, 0]))
 
  
     ch = cv2.waitKey(5)
@@ -57,6 +57,7 @@ while True:
     if ch == 27:
         break
 
+print(h_min,h_max)
 therds_stop.set()
 Camera.theard.join()
 cv2.destroyAllWindows()
