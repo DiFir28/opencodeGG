@@ -3,6 +3,9 @@ import math
 def sign(a):
     return (a > 0) * 2 - 1
 
+def rot(p, ang)->tuple:
+    return (p[0]*math.cos(ang)-p[1]*math.sin(ang), p[0]*math.sin(ang)+p[1]*math.cos(ang))
+
 class point:
     
     def __init__(self, x, y):

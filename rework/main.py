@@ -4,54 +4,57 @@ import math
 import json
 import threading
 import geometry as gm
-import Camera
+# import Camera
 import cv2
-from Shared import therds_stop, hsv_frame_queue
-import CVobj
-import ser_theard
-from Strateg_classes import horOut
+from Shared import therds_stop, hsv_frame_queue, coords
+# import CVobj
+import SArduino
+import Coordinates
+# from Strateg_classes import horOut
+
+import Coordinates
 
 last_ballIn=0
 last_ball_time = 0
 recessHsum=0
 
-def ballIn():
-     global last_ballIn, recessHsum, last_ball_time
-     if last_ballIn == 1:
-           if CVobj.orange.main_vec.leng <100:
-                 return 1
+# def ballIn():
+#      global last_ballIn, recessHsum, last_ball_time
+#      if last_ballIn == 1:
+#            if CVobj.orange.main_vec.leng <100:
+#                  return 1
 
-     hsv = hsv_frame_queue.get()
-     hsv_frame_queue.put(hsv)
+#      hsv = hsv_frame_queue.get()
+#      hsv_frame_queue.put(hsv)
 
-     recessHsum = np.sum(hsv[865:900, 952:992, 0])
-     # print(recessHsum)
+#      recessHsum = np.sum(hsv[865:900, 952:992, 0])
+#      # print(recessHsum)
 
-     if CVobj.orange.main_vec.leng <98 :
-           last_ballIn = 1
-           return 1
-     else:
-           last_ballIn =0
-           last_ball_time = time.time()
-           return 0
+#      if CVobj.orange.main_vec.leng <98 :
+#            last_ballIn = 1
+#            return 1
+#      else:
+#            last_ballIn =0
+#            last_ball_time = time.time()
+#            return 0
 
 
 
 with open('config.json', 'r', encoding='utf-8') as file:
      json = json.load(file)
 
-read_thread = threading.Thread(target=ser_theard.read_from_arduino)
-read_thread.daemon = True
-read_thread.start()
 
-Camera.theard.start()
-CVobj.theard.start()
+SArduino.thread.start()
+
+# Camera.theard.start()
+# CVobj.theard.start()
+Coordinates.thread.start()
 
 
-if json["op_goal"] == "Blue":
-     op_goal = CVobj.blue
-else:
-     op_goal = CVobj.yellow
+# if json["op_goal"] == "Blue":
+#      op_goal = CVobj.blue
+# else:
+#      op_goal = CVobj.yellow
       
 
 time.sleep(3)
@@ -67,18 +70,37 @@ qq = 0
 
 try:
      while True:
-          frame = hsv_frame_queue.get()
-          if CVobj.blue.ret:
-               cv2.drawContours(frame, CVobj.blue.glob_contour,5, (255,255,0))
-          cv2.imshow("Cap",cv2.cvtColor( cv2.resize(frame, (400,400)), cv2.COLOR_HSV2BGR))
-          print(CVobj.blue.main_vec.leng, np.shape(CVobj.blue.sect))
-          if cv2.waitKey(5) == 27:
-                              break
 
-          try:
-               cv2.imshow("Blue",cv2.cvtColor(CVobj.blue.sect,cv2.COLOR_HSV2BGR))
-          except:
-               print("0 blue")
+          st=gm.point(50,30)
+
+          robot_pos=gm.point(coords[0],coords[1])
+          
+          dirr=gm.vec()
+          dirr.beg=robot_pos
+          dirr.end=st
+          dirr.calcang()
+          print(coords, dirr.ang)
+
+          if gm.ro(st,robot_pos)>10:
+               lin_vel=1000
+          else:
+               lin_vel=0
+     
+
+          SArduino.write_to_arduino(f',{round(dirr.ang*1000)}, {lin_vel}, {rot_dir}, {drib_pow},{7000},')
+
+          # frame = hsv_frame_queue.get()
+          # if CVobj.blue.ret:
+          #      cv2.drawContours(frame, CVobj.blue.glob_contour,5, (255,255,0))
+          # cv2.imshow("Cap",cv2.cvtColor( cv2.resize(frame, (400,400)), cv2.COLOR_HSV2BGR))
+          # print(CVobj.blue.main_vec.leng, np.shape(CVobj.blue.sect))
+          # if cv2.waitKey(5) == 27:
+          #                     break
+
+          # try:
+          #      cv2.imshow("Blue",cv2.cvtColor(CVobj.blue.sect,cv2.COLOR_HSV2BGR))
+          # except:
+          #      print("0 blue")
      # blue.main_calc(frame)
      # print(blue.main_vec.leng)
 
@@ -147,7 +169,9 @@ try:
 except KeyboardInterrupt:
      print("Break")  
 finally:
-     ser_theard.write_to_arduino(f',{0}, {0}, {0}, {0}, {5000},')
+     SArduino.write_to_arduino(f',{0}, {0}, {0}, {0}, {5000},')
      therds_stop.set()
-     Camera.theard.join()
+     # Camera.theard.join()
+     Coordinates.thread.join()
+
 
