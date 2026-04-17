@@ -19,6 +19,8 @@ img_resolution = json["resolution"]["img"]
 raw_frame_hsv = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 raw_frame_bgr = np.zeros( (img_resolution[0], img_resolution[1], 3), dtype = np.uint8)
 
+x_offset, y_offset = json["img_centre"]
+
 overlay = cv2.imread("fra.png", cv2.IMREAD_UNCHANGED)
 alpha = overlay[:, :, 3] / 255.0
 alpha = alpha[:, :, np.newaxis]  # делаем (h, w, 1)
@@ -52,11 +54,12 @@ time.sleep(2)
 dcapx = cap_resolution[0] - img_resolution[0]
 dcapy = cap_resolution[1] - img_resolution[1]
 def cap_read():
+    global x_offset, y_offset
     global cap, raw_frame_bgr, raw_frame_hsv
     raw_frame_bgr = cv2.cvtColor(cap.capture_array(), cv2.COLOR_RGB2BGR) 
     raw_frame_bgr = raw_frame_bgr[(cap_resolution[1] - img_resolution[1])//2 : (cap_resolution[1] - (cap_resolution[1] - img_resolution[1])//2),(cap_resolution[0] - img_resolution[0])//2 : (cap_resolution[0] - (cap_resolution[0] - img_resolution[0])//2)]
 #     cv2.circle(raw_frame_bgr, (img_resolution[0]//2, img_resolution[1]//2), 1080, (0,0,0), 530)
-    cv2.circle(raw_frame_bgr, (img_resolution[0]//2, img_resolution[1]//2), 120, (10,0,0), -1)
+    cv2.circle(raw_frame_bgr, (img_resolution[0]//2-x_offset, img_resolution[1]//2-y_offset), 80, (10,0,0), -1)
     # cv2.circle(raw_frame_bgr, (img_resolution[0]//2, img_resolution[1]//2), 250, (0,200,0), 1)
 
     raw_frame_hsv = cv2.cvtColor(raw_frame_bgr, cv2.COLOR_BGR2HSV) 

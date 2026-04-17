@@ -4,10 +4,10 @@ import math
 import json
 import threading
 import geometry as gm
-# import Camera
+import Camera
 import cv2
 from Shared import therds_stop, hsv_frame_queue, coords
-# import CVobj
+import CVobj
 import SArduino
 import Coordinates
 # from Strateg_classes import horOut
@@ -46,8 +46,8 @@ with open('config.json', 'r', encoding='utf-8') as file:
 
 SArduino.thread.start()
 
-# Camera.theard.start()
-# CVobj.theard.start()
+Camera.theard.start()
+CVobj.theard.start()
 Coordinates.thread.start()
 
 
@@ -68,26 +68,81 @@ rot_dir = 0
 drib_pow = 0
 qq = 0
 
-try:
-     while True:
+while not coords[3]:
+     time.sleep(0.1)
+     pass
 
-          st=gm.point(50,30)
 
-          robot_pos=gm.point(coords[0],coords[1])
-          
-          dirr=gm.vec()
-          dirr.beg=robot_pos
-          dirr.end=st
-          dirr.calcang()
-          print(coords, dirr.ang)
+pos_last_err = 0
 
-          if gm.ro(st,robot_pos)>10:
-               lin_vel=1000
-          else:
-               lin_vel=0
+vel_k = 10
+
+def goToPos(pos):
+     global pos_last_err
+
+     if abs(pos.x) >70:
+          pos.x=70*gm.sign(pos.x)
+     
+     if abs(pos.y) >80:
+          pos.y=80*gm.sign(pos.y)
+
+     robot_pos=gm.point(coords[0],coords[1])
+     dirr=gm.vec()
+     dirr.beg=robot_pos
+     dirr.end=pos
+     dirr.calcang()
+
+     pos_err = dirr.leng
+     vel = pos_err*6.0 + (pos_err-pos_last_err)*15.0
+     vel=max((vel*vel_k),1000)
+
+     pos_last_err = pos_err
+
      
 
-          SArduino.write_to_arduino(f',{round(dirr.ang*1000)}, {lin_vel}, {rot_dir}, {drib_pow},{7000},')
+
+     # SArduino.write_to_arduino(f',{round(dirr.ang*1000)}, {lin_vel}, {rot_dir}, {drib_pow},{7000},')
+
+     return (dirr.ang-3.1415926/2), vel
+
+
+def goIn(pos):
+     robot_pos=gm.point(coords[0],coords[1])
+     while abs(gm.ro(robot_pos,pos))>10:
+          robot_pos=gm.point(coords[0],coords[1])
+
+          # print(coords)
+          re=goToPos(pos)
+          SArduino.send_int16_array([round(re[0]*1000),round(re[1]),0,0,2000])
+          time.sleep(0.01)
+     
+     
+
+
+
+
+
+try:
+     print("start")
+     while True:
+          # re=goToPos(gm.point(0,0))
+          print(CVobj.orange.main_vec.ang)
+          SArduino.send_int16_array([0,0,round((-CVobj.orange.main_vec.ang+gyro)*1000),0,2000])
+          time.sleep(0.01)
+
+          # goIn(gm.point(50,0))
+          # print(111)
+          # time.sleep(0.5)
+          # goIn(gm.point(-50,50))
+          # time.sleep(0.5)
+          # goIn(gm.point(50,50))
+          # time.sleep(0.5)
+
+          
+
+          
+          
+          
 
           # frame = hsv_frame_queue.get()
           # if CVobj.blue.ret:
@@ -167,11 +222,15 @@ try:
           '''
           
 except KeyboardInterrupt:
+     SArduino.send_int16_array([0,0,0,0,0])
      print("Break")  
 finally:
-     SArduino.write_to_arduino(f',{0}, {0}, {0}, {0}, {5000},')
+     print("123")
+     SArduino.send_int16_array([0,0,0,0,0])
+     print("send")
+     
      therds_stop.set()
-     # Camera.theard.join()
+     Camera.theard.join()
      Coordinates.thread.join()
 
 

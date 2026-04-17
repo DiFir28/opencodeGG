@@ -46,7 +46,7 @@ def cent_contour(cont):
             return 0, 0
 
 
-
+x_offset, y_offset = json["img_centre"]
 
 class CVobj:
     def __init__(self, name:str, img_resolution, global_bound:tuple,/, local_bound:tuple = None ,*,joint=0, color:tuple = ( 0, 200, 200), div = 1, use_sect:bool = True ):
@@ -73,7 +73,7 @@ class CVobj:
         self.loc_contour = None
         self.main_point = point(0,0)
         
-        self.main_vec = vec(beg = point(img_resolution[0]/2, img_resolution[1]/2))
+        self.main_vec = vec(beg = point(img_resolution[0]//2-x_offset, img_resolution[1]//2-y_offset))
 
         self.prev_t = time.time()
         self.buf = 0
@@ -129,6 +129,7 @@ class CVobj:
         
 img_resolution = json["resolution"]["img"]
 
+
 blue = CVobj("blue", img_resolution,  json["borders"]["Blue_goal"]["global"][0])  
 yellow = CVobj("blue", img_resolution,  json["borders"]["Yellow_goal"]["global"][0])  
 orange = CVobj("blue", img_resolution,  json["borders"]["Orange_ball"]["global"][0])  
@@ -140,8 +141,8 @@ def CVread():
             continue
         frame = hsv_frame_queue.get()
         with threading.Lock():
-            blue.main_calc(frame)
-            yellow.main_calc(frame)
+            # blue.main_calc(frame)
+            # yellow.main_calc(frame)
             orange.main_calc(frame)
 
                 

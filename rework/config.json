@@ -5,10 +5,7 @@
         "img":[1944, 1944]
     },
 
-    "img_centre": {
-        "cur": [496, 472],
-        "raw": [0, 0]
-    },
+    "img_centre": [-100, -100],
 
     "field_valid_size":[242,178],
 
